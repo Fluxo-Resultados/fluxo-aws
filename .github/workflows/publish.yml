@@ -1,0 +1,37 @@
+name: Build and Deploy to PyPi
+
+on:
+  push:
+    branches:
+    - master
+
+env:
+  TWINE_PASSWORD: secrets.TOKEN
+
+jobs:
+  setup-build-publish:
+    name: Setup, Build, Publish
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install setuptools wheel twine
+
+    - name: Build
+        run: |
+          python setup.py sdist bdist_wheel
+
+    - name: Publish
+        run: |
+          python -m twine upload --non-interactive dist/*
