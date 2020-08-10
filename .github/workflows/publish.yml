@@ -5,9 +5,6 @@ on:
     branches:
     - master
 
-env:
-  PYPIRC: secrets.pypirc
-
 jobs:
   setup-build-publish:
     name: Setup, Build, Publish
@@ -28,11 +25,14 @@ jobs:
         pip install -r requirements.txt
         pip install setuptools wheel twine
 
+
     - name: Build
       run: |
         python setup.py sdist bdist_wheel
 
-    - name: Publish
-      run: |
-        echo $PYPIRC > .pypirc
-        python -m twine upload --config-file ./.pypirc --verbose --non-interactive dist/*
+
+    - name: Publish a Python distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_PASSWORD }}
