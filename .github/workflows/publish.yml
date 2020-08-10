@@ -6,8 +6,7 @@ on:
     - master
 
 env:
-  TWINE_PASSWORD: secrets.TOKEN
-  TWINE_USERNAME: __token__
+  PYPIRC: secrets.pypirc
 
 jobs:
   setup-build-publish:
@@ -35,4 +34,5 @@ jobs:
 
     - name: Publish
       run: |
-        python -m twine upload --verbose --non-interactive dist/*
+        echo $PYPIRC > .pypirc
+        python -m twine upload --config-file ./.pypirc --verbose --non-interactive dist/*
