@@ -35,4 +35,4 @@ jobs:
 
     - name: Publish
       run: |
-        python -m twine upload --non-interactive dist/*
+        python -m twine upload --verbose --non-interactive dist/*
