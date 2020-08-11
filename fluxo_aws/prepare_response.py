@@ -2,6 +2,10 @@ from functools import wraps
 from .json_encoder import json_encoder
 import json
 
+mapping = {
+    bytes: lambda x: x.decode(),
+}
+
 
 def prepare_response(func):
     @wraps(func)
@@ -11,7 +15,10 @@ def prepare_response(func):
             result = {}
         if type(result) == tuple:
             keys = ["statusCode", "body", "headers"]
-            result = {keys[i]: result[i] for i in range(len(result))}
+            result = {
+                keys[i]: mapping.get(type(result[i]), type(result[i]))(result[i])
+                for i in range(len(result))
+            }
         elif type(result) == int:
             # Assuming status_code
             result = {"statusCode": result}
