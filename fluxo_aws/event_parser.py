@@ -8,6 +8,15 @@ class ParsedEvent:
         self.query = query
         self.body = body
 
+    def get(self, q):
+        if self.body.get(q):
+            return self.body.get(q)
+        elif self.query.get(q):
+            return self.query.get(q)
+        elif self.headers.get(q):
+            return self.headers.get(q)
+        else:
+            return None
 
 def _load_resource(event, name):
     if name not in event.keys():
