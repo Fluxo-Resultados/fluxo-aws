@@ -1,9 +1,14 @@
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 import jwt
+from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError, DecodeError
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
+
+
+class AuthException(Exception):
+    pass
 
 
 def hash_password(password):
@@ -29,4 +34,11 @@ def create_access_token(
 
 
 def decode_token(data, secret_key):
-    return jwt.decode(data, secret_key, algorithms=ALGORITHM)
+    try:
+        return jwt.decode(data, secret_key, algorithms=ALGORITHM)
+    except InvalidSignatureError:
+        raise AuthException("Invalid signature.")
+    except ExpiredSignatureError:
+        raise AuthException("Session expired.")
+    except DecodeError:
+        raise AuthException("Invalid token.")
