@@ -18,6 +18,7 @@ class ParsedEvent:
         else:
             return None
 
+
 def _load_resource(event, name):
     if name not in event.keys():
         resource = {}

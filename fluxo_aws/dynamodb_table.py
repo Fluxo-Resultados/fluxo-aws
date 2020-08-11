@@ -39,8 +39,18 @@ class DynamodbTable:
         except self.client.exceptions.ResourceNotFoundException:
             return []
 
+    def get_item(self, data):
+        return self.table.get_item(Key=data).get("Item", {})
+
     def add(self, data):
         if not self.validator.validate(data):
             raise SchemaError(self.validator.errors)
 
         return self.table.put_item(Item=data)
+
+    def update(self, data, key):
+        item = self.get_item(key)
+
+        if item:
+            item.update(data)
+            return self.table.put_item(Item=item)
