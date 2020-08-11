@@ -6,4 +6,5 @@ from .auth import (  # noqa: F401
     verify_password,  # noqa: F401
     create_access_token,  # noqa: F401
     decode_token,  # noqa: F401
+    AuthException,  # noqa: F401
 )  # noqa: F401
