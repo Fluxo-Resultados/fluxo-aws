@@ -1,7 +1,9 @@
 import boto3
 from boto3.dynamodb.conditions import Key
 from cerberus import Validator
-from .dynamo_encoder import dynamo_encoder
+import json
+from .json_encoder import json_encoder
+from decimal import Decimal
 
 
 class SchemaError(Exception):
@@ -47,7 +49,9 @@ class DynamodbTable:
         if not self.validator.validate(data):
             raise SchemaError(self.validator.errors)
 
-        return self.table.put_item(Item=dynamo_encoder(data))
+        data = json.loads(json.dumps(data, default=json_encoder), parse_float=Decimal)
+
+        return self.table.put_item(Item=data)
 
     def update(self, data, key):
         item = self.get_item(key)
