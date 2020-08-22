@@ -1,6 +1,7 @@
 import boto3
 from boto3.dynamodb.conditions import Key
 from cerberus import Validator
+from .dynamo_encoder import dynamo_encoder
 
 
 class SchemaError(Exception):
@@ -46,7 +47,7 @@ class DynamodbTable:
         if not self.validator.validate(data):
             raise SchemaError(self.validator.errors)
 
-        return self.table.put_item(Item=data)
+        return self.table.put_item(Item=dynamo_encoder(data))
 
     def update(self, data, key):
         item = self.get_item(key)
