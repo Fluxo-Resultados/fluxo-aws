@@ -3,10 +3,11 @@ from functools import wraps
 
 
 class ParsedEvent:
-    def __init__(self, headers, query, body):
+    def __init__(self, headers, query, body, path):
         self.headers = headers
         self.query = query
         self.body = body
+        self.path = path
 
     def get(self, q):
         if self.body.get(q):
@@ -15,6 +16,8 @@ class ParsedEvent:
             return self.query.get(q)
         elif self.headers.get(q):
             return self.headers.get(q)
+        elif self.path.get(q):
+            return self.path.get(q)
         else:
             return None
 
@@ -35,7 +38,8 @@ def _parse_event(event):
     headers = _load_resource(event, "headers")
     query = _load_resource(event, "queryStringParameters")
     body = _load_resource(event, "body")
-    return ParsedEvent(headers, query, body)
+    path = _load_resource(event, "pathParameters")
+    return ParsedEvent(headers, query, body, path)
 
 
 def event_parser(func):
