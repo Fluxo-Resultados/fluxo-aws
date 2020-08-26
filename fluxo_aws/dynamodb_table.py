@@ -67,4 +67,4 @@ class DynamodbTable:
         item = self.get_item(data)
 
         if item:
-            return self.table.delete_item(Item=item)
+            return self.table.delete_item(Key=item)
