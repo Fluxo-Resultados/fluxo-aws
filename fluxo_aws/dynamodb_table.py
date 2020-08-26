@@ -63,8 +63,5 @@ class DynamodbTable:
             item.update(data)
             return self.table.put_item(Item=item)
 
-    def delete(self, data: dict):
-        item = self.get_item(data)
-
-        if item:
-            return self.table.delete_item(Key=item)
+    def delete(self, key: dict):
+        return self.table.delete_item(Key=key)
