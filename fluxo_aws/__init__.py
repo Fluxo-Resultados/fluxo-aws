@@ -8,3 +8,4 @@ from .auth import (  # noqa: F401
     decode_token,  # noqa: F401
     AuthException,  # noqa: F401
 )  # noqa: F401
+from .s3_bucket import S3Bucket

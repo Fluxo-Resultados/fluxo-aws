@@ -45,6 +45,9 @@ class DynamodbTable:
     def get_item(self, data):
         return self.table.get_item(Key=data).get("Item", {})
 
+    def query_items(self, key, data):
+        return self.table.query(KeyConditionExpression=Key(key)).eq(data).get("Items", [])
+
     def add(self, data):
         if not self.validator.validate(data):
             raise SchemaError(self.validator.errors)

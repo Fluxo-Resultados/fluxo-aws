@@ -115,3 +115,30 @@ print(create_access_token({"test": True}, timedelta(hours=3), str(uuid4())))
 4. `decode_token(data, secret_key)`
 
 WIP
+
+### S3 handlers
+
+1. `S3Bucket(bucket_name)`
+
+Helper for S3 Operations. This class exposes:
+
+- `upload_file(file_name, object_name=None)`: upload local file to S3 returns `True` if uploaded successfully else `False`
+- `download_file(object_name, file_name=None)`: download S3 file locally
+- `create_presigned_url(object_name, action="get_object", expiration=3600)`: creates a presigned URL for S3 object. Returns presigned URL if successfully else returns None
+
+Usage
+```
+from fluxo_aws import S3Bucket
+
+s3_bucket = S3Bucket("my-test-bucket")
+object_name = "test_file.txt"
+file_name = "/tmp/text_file.txt"
+
+
+print(s3_bucket.upload_file(file_name, object_name))
+
+print(s3_bucket.create_presigned_url(object_name, action, expiration))
+
+print(s3_bucket.download_file(object_name, file_name))
+
+```
