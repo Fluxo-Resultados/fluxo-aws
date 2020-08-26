@@ -62,3 +62,9 @@ class DynamodbTable:
         if item:
             item.update(data)
             return self.table.put_item(Item=item)
+
+    def delete(self, data: dict):
+        item = self.get_item(data)
+
+        if item:
+            return self.table.delete_item(Item=item)
