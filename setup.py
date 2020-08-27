@@ -8,7 +8,7 @@ with open("requirements.txt") as requirements:
 
 setuptools.setup(
     name="fluxo-aws",
-    version="0.0.17",
+    version="0.0.18",
     author="Brenno Flavio",
     author_email="brenno.flavio@fluxoresultados.com.br",
     description="Provides a bunch of functions and utils to help you build applications on top of Amazon Web Services Resources",
