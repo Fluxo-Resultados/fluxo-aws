@@ -48,8 +48,30 @@ class DynamodbTable:
     def get_item(self, data):
         return self.table.get_item(Key=data).get("Item", {})
 
-    def query_items(self, key, data):
-        return self.table.query(KeyConditionExpression=Key(key)).eq(data).get("Items", [])
+    def query_items(self, data, key, startKey=None):
+        """Query Items from DynamoDB Table
+
+        :param data: query data
+        :param key: query field
+        :param startKey: default=None
+        :return: dist object {"Items": [...items...], "ExclusiveStartKey":"...next page start key(if there is next page)..."}
+        """
+
+        query_kwargs = {
+            "KeyConditionExpression": Key(key).eq(data)
+        }
+        if startKey:
+            print("Start Key is passed")
+            query_kwargs["ExclusiveStartKey"] = startKey
+        else:
+            print("Start Key is not passed")
+
+        response = self.table.query(**query_kwargs)
+        startKey = response.get('LastEvaluatedKey', None)
+        if response and 'Items' in response:
+            return {"Items": response['Items'], "ExclusiveStartKey": startKey}
+        else:
+            return {"Items": []}
 
     def add(self, data):
         if not self.validator.validate(data):
