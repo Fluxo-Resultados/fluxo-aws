@@ -13,6 +13,8 @@ class SchemaError(Exception):
 
 class DynamodbTable:
     def __init__(self, table_name, schema, hash_key=None, partition_key=None):
+        print("boto3.__version__")
+        print(boto3.__version__)
         self.table_name = table_name
         self.schema = schema
         self.resource = boto3.resource("dynamodb")
