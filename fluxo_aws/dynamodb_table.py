@@ -4,6 +4,7 @@ from cerberus import Validator
 import json
 from .json_encoder import json_encoder
 from decimal import Decimal
+from botocore.exceptions import ClientError
 
 
 class SchemaError(Exception):
@@ -65,3 +66,35 @@ class DynamodbTable:
 
     def delete(self, key: dict):
         return self.table.delete_item(Key=key)
+
+    def batch_add(self, data):
+        for x in data:
+            if not self.validator.validate(x):
+                raise SchemaError(self.validator.errors)
+
+        try:
+            with self.table.batch_writer() as batch:
+                for r in data:
+                    r = json.loads(json.dumps(
+                        r, default=json_encoder), parse_float=Decimal)
+                    batch.put_item(Item=r)
+
+        except ClientError as e:
+            print("Unexpected error: %s" % e)
+            print("DynamoDB Client Error: %s" % e)
+            return False
+        except self.client.exceptions.ItemCollectionSizeLimitExceededException as e:
+            print("Unexpected error: %s" % e)
+            print("DynamoDB Client Error[ItemCollectionSizeLimitExceededException]: %s" % e)
+            return False
+        except self.client.exceptions.LimitExceededException as e:
+            print("Error[DynamoDB LimitExceededException]: %s" % e)
+            return False
+        except self.client.exceptions.RequestLimitExceeded as e:
+            print("Error[DynamoDB RequestLimitExceeded]: %s" % e)
+            return False
+        except self.client.exceptions.ProvisionedThroughputExceededException as e:
+            print("Error[DynamoDB ProvisionedThroughputExceededException]: %s" % e)
+            return False
+
+        return True
