@@ -48,7 +48,7 @@ class DynamodbTable:
     def get_item(self, data):
         return self.table.get_item(Key=data).get("Item", {})
 
-    def query_items(self, data, key, startKey=None):
+    def query_items(self, data, key, startKey=None, index_name=None):
         """Query Items from DynamoDB Table
 
         :param data: query data
@@ -65,6 +65,8 @@ class DynamodbTable:
             query_kwargs["ExclusiveStartKey"] = startKey
         else:
             print("Start Key is not passed")
+        if index_name:
+            query_kwargs["IndexName"] = index_name
 
         response = self.table.query(**query_kwargs)
         startKey = response.get('LastEvaluatedKey', None)
