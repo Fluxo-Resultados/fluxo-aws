@@ -2,6 +2,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 import jwt
 from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError, DecodeError
+from base64 import b64decode
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
@@ -42,3 +43,41 @@ def decode_token(data, secret_key):
         raise AuthException("Session expired.")
     except DecodeError:
         raise AuthException("Invalid token.")
+
+
+def decode_basic_token(authorization):
+    """Decode basic auth token using base64 decode method
+
+    :param authorization: valid authorization token string
+    :raise: AuthException if there is any exception
+    :return: dist object {"username":"<username>", "password":"<password>"}
+    """
+    authorization = b64decode(authorization).decode()
+    authorization = authorization.split(":")
+    if len(authorization) < 2:
+        raise AuthException("Username or password is missing in basic token.")
+    else:
+        return {
+            "username": authorization[0],
+            "password": authorization[-1]
+        }
+
+
+def get_header_field_token(authorization_header):
+    """Get Auth mechanism and token from Authorization header field value
+
+    :param authorization_header: Authorization header field string value
+    :raise: AuthException if there is any exception
+    :return: dist object {"token":"<token>", "type":"auth mechanism type: basic|bearer"}
+    """
+    authorization_token = authorization_header.split(" ")
+    token = authorization_token[-1]
+    if len(authorization_token) < 2:
+        raise AuthException("Invalid token.")
+    else:
+        if (authorization_token[0].lower() not in ["basic", "bearer"]):
+            raise AuthException("Unspported auth mechanism.")
+        elif authorization_token[0].lower() == "basic":
+            return {"token": str(token), "type": authorization_token[0].lower()}
+        elif authorization_token[0].lower() == "bearer":
+            return {"token": str(token), "type": authorization_token[0].lower()}
