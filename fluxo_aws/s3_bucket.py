@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 class S3Bucket:
     def __init__(self, bucket_name):
         self.bucket_name = bucket_name
-        self.s3_client = boto3.client('s3')
+        self.s3_client = boto3.client("s3")
 
     def upload_file(self, file_name, object_name=None):
         """Upload a file to an S3 bucket
@@ -20,7 +20,9 @@ class S3Bucket:
             object_name = file_name
 
         try:
-            response = self.s3_client.upload_file(file_name, self.bucket_name, object_name)
+            response = self.s3_client.upload_file(
+                file_name, self.bucket_name, object_name
+            )
         except ClientError as e:
             # logging.error(e)
             return False
@@ -40,7 +42,9 @@ class S3Bucket:
 
         # Download the file
         try:
-            response = self.s3_client.upload_file(file_name, self.bucket_name, object_name)
+            response = self.s3_client.upload_file(
+                file_name, self.bucket_name, object_name
+            )
         except ClientError as e:
             # logging.error(e)
             return False
@@ -60,7 +64,9 @@ class S3Bucket:
 
         # Download the file
         try:
-            response = self.s3_client.download_fileobj(self.bucket_name, object_name, file_name)
+            response = self.s3_client.download_fileobj(
+                self.bucket_name, object_name, file_name
+            )
         except ClientError as e:
             # logging.error(e)
             return False
@@ -77,10 +83,11 @@ class S3Bucket:
 
         # Generate a presigned URL for the S3 object
         try:
-            response = self.s3_client.generate_presigned_url(action,
-                                                        Params={'Bucket': self.bucket_name,
-                                                                'Key': object_name},
-                                                        ExpiresIn=expiration)
+            response = self.s3_client.generate_presigned_url(
+                action,
+                Params={"Bucket": self.bucket_name, "Key": object_name},
+                ExpiresIn=expiration,
+            )
         except ClientError as e:
             # logging.error(e)
             return None

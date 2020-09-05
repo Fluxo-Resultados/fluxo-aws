@@ -57,9 +57,7 @@ class DynamodbTable:
         :return: dist object {"Items": [...items...], "ExclusiveStartKey":"...next page start key(if there is next page)..."}
         """
 
-        query_kwargs = {
-            "KeyConditionExpression": Key(key).eq(data)
-        }
+        query_kwargs = {"KeyConditionExpression": Key(key).eq(data)}
         if startKey:
             print("Start Key is passed")
             query_kwargs["ExclusiveStartKey"] = startKey
@@ -69,9 +67,9 @@ class DynamodbTable:
             query_kwargs["IndexName"] = index_name
 
         response = self.table.query(**query_kwargs)
-        startKey = response.get('LastEvaluatedKey', None)
-        if response and 'Items' in response:
-            return {"Items": response['Items'], "ExclusiveStartKey": startKey}
+        startKey = response.get("LastEvaluatedKey", None)
+        if response and "Items" in response:
+            return {"Items": response["Items"], "ExclusiveStartKey": startKey}
         else:
             return {"Items": []}
 
@@ -101,8 +99,9 @@ class DynamodbTable:
         try:
             with self.table.batch_writer() as batch:
                 for r in data:
-                    r = json.loads(json.dumps(
-                        r, default=json_encoder), parse_float=Decimal)
+                    r = json.loads(
+                        json.dumps(r, default=json_encoder), parse_float=Decimal
+                    )
                     batch.put_item(Item=r)
 
         except ClientError as e:
@@ -111,7 +110,10 @@ class DynamodbTable:
             return False
         except self.client.exceptions.ItemCollectionSizeLimitExceededException as e:
             print("Unexpected error: %s" % e)
-            print("DynamoDB Client Error[ItemCollectionSizeLimitExceededException]: %s" % e)
+            print(
+                "DynamoDB Client Error[ItemCollectionSizeLimitExceededException]: %s"
+                % e
+            )
             return False
         except self.client.exceptions.LimitExceededException as e:
             print("Error[DynamoDB LimitExceededException]: %s" % e)
@@ -124,3 +126,19 @@ class DynamodbTable:
             return False
 
         return True
+
+    def get_all(self):
+        final_result = []
+        scan_kwargs = {}
+        done = False
+        start_key = None
+
+        while not done:
+            if start_key:
+                scan_kwargs["ExclusiveStartKey"] = start_key
+            response = self.table.scan(**scan_kwargs)
+            final_result.extend(response.get("Items", []))
+            start_key = response.get("LastEvaluatedKey", None)
+            done = start_key is None
+
+        return final_result

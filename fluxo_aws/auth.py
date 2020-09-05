@@ -57,10 +57,7 @@ def decode_basic_token(authorization):
     if len(authorization) < 2:
         raise AuthException("Username or password is missing in basic token.")
     else:
-        return {
-            "username": authorization[0],
-            "password": authorization[-1]
-        }
+        return {"username": authorization[0], "password": authorization[-1]}
 
 
 def get_header_field_token(authorization_header):
@@ -75,7 +72,7 @@ def get_header_field_token(authorization_header):
     if len(authorization_token) < 2:
         raise AuthException("Invalid token.")
     else:
-        if (authorization_token[0].lower() not in ["basic", "bearer"]):
+        if authorization_token[0].lower() not in ["basic", "bearer"]:
             raise AuthException("Unspported auth mechanism.")
         elif authorization_token[0].lower() == "basic":
             return {"token": str(token), "type": authorization_token[0].lower()}
