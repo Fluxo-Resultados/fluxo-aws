@@ -1,6 +1,6 @@
 import boto3
 from boto3.dynamodb.conditions import Key
-from cerberus import Validator
+from cerberus import Validator, TypeDefinition
 import json
 from .json_encoder import json_encoder
 from decimal import Decimal
@@ -23,6 +23,15 @@ class DynamodbTable:
         self.hash_key = hash_key
         self.partition_key = partition_key
         self.validator = Validator(schema)
+        self.validator.types_mapping["integer"] = TypeDefinition(
+            "integer", (int, Decimal), (bool,)
+        )
+        self.validator.types_mapping["float"] = TypeDefinition(
+            "float", (float, Decimal), ()
+        )
+        self.validator.types_mapping["number"] = TypeDefinition(
+            "number", (int, float, Decimal), (bool,)
+        )
 
     def exists(self, id, hash_key=None):
         key = hash_key or self.hash_key
