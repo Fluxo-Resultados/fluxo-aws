@@ -36,12 +36,14 @@ class DynamodbTable:
         except self.client.exceptions.ResourceNotFoundException:
             return False
 
-    def get_by_hash_key(self, id, hash_key=None):
+    def get_by_hash_key(self, id, hash_key=None, index_name=None):
         key = hash_key or self.hash_key
+        query_kwargs = {"KeyConditionExpression": Key(key).eq(id)}
+        if index_name:
+            query_kwargs["IndexName"] = index_name
+
         try:
-            return self.table.query(KeyConditionExpression=Key(key).eq(id)).get(
-                "Items", []
-            )
+            return self.table.query(**query_kwargs).get("Items", [])
         except self.client.exceptions.ResourceNotFoundException:
             return []
 
