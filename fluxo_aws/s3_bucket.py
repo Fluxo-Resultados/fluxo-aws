@@ -97,5 +97,5 @@ class S3Bucket:
 
     def generate_presigned_post(self, file_name: str, ExpiresIn=360):
         response = self.s3_client.generate_presigned_post(
-            self.bucket_name, file_name, ExpiresIn=ExpiresIn
+            self.bucket_name, file_name, ExpiresIn=ExpiresIn)
         return response
