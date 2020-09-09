@@ -3,11 +3,11 @@ from botocore.exceptions import ClientError
 
 
 class S3Bucket:
-    def __init__(self, bucket_name):
+    def __init__(self, bucket_name: str):
         self.bucket_name = bucket_name
         self.s3_client = boto3.client("s3")
 
-    def upload_file(self, file_name, object_name=None):
+    def upload_file(self, file_name: str, object_name=None):
         """Upload a file to an S3 bucket
 
         :param file_name: File to upload
@@ -28,7 +28,7 @@ class S3Bucket:
             return False
         return True
 
-    def download_file(self, object_name, file_name=None):
+    def download_file(self, object_name: str, file_name=None):
         """Download a file from S3 bucket
 
         :param file_name: File to upload
@@ -42,15 +42,15 @@ class S3Bucket:
 
         # Download the file
         try:
-            response = self.s3_client.upload_file(
-                file_name, self.bucket_name, object_name
+            response = self.s3_client.download_file(
+                self.bucket_name, object_name, file_name
             )
         except ClientError as e:
             # logging.error(e)
-            return False
-        return True
+            return None
+        return response
 
-    def download_fileobj(self, object_name, file_name):
+    def download_fileobj(self, object_name, file_name: str):
         """Download a fileObject from S3 bucket
 
         :param object_name: S3 object name. If not specified then file_name is used
