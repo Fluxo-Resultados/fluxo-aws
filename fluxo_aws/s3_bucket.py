@@ -94,3 +94,8 @@ class S3Bucket:
 
         # The response contains the presigned URL
         return response
+
+    def generate_presigned_post(self, file_name: str, ExpiresIn=360):
+        response = self.s3_client.generate_presigned_post(
+            self.bucket_name, file_name, ExpiresIn=ExpiresIn
+        return response
