@@ -7,7 +7,7 @@ class S3Bucket:
         self.bucket_name = bucket_name
         self.s3_client = boto3.client("s3")
 
-    def upload_file(self, file_name: str, object_name=None):
+    def upload_file(self, file_name: str, object_name=None, ExtraArgs=None):
         """Upload a file to an S3 bucket
 
         :param file_name: File to upload
@@ -21,7 +21,7 @@ class S3Bucket:
 
         try:
             response = self.s3_client.upload_file(
-                file_name, self.bucket_name, object_name
+                file_name, self.bucket_name, object_name, ExtraArgs=ExtraArgs
             )
         except ClientError as e:
             # logging.error(e)
@@ -97,5 +97,5 @@ class S3Bucket:
 
     def generate_presigned_post(self, file_name: str, ExpiresIn=360):
         response = self.s3_client.generate_presigned_post(
-            self.bucket_name, file_name, ExpiresIn=ExpiresIn)
+            self.bucket_name, file_name, ExpiresIn)
         return response
