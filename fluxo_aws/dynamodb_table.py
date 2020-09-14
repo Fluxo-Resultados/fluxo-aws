@@ -12,7 +12,7 @@ class SchemaError(Exception):
 
 
 class DynamodbTable:
-    def __init__(self, table_name, schema, hash_key=None, partition_key=None):
+    def __init__(self, table_name, schema=None, hash_key=None, partition_key=None):
         print("boto3.__version__")
         print(boto3.__version__)
         self.table_name = table_name
@@ -22,16 +22,20 @@ class DynamodbTable:
         self.table = self.resource.Table(table_name)
         self.hash_key = hash_key
         self.partition_key = partition_key
-        self.validator = Validator(schema)
-        self.validator.types_mapping["integer"] = TypeDefinition(
-            "integer", (int, Decimal), (bool,)
-        )
-        self.validator.types_mapping["float"] = TypeDefinition(
-            "float", (float, Decimal), ()
-        )
-        self.validator.types_mapping["number"] = TypeDefinition(
-            "number", (int, float, Decimal), (bool,)
-        )
+
+        if self.schema:
+            self.validator = Validator(schema)
+            self.validator.types_mapping["integer"] = TypeDefinition(
+                "integer", (int, Decimal), (bool,)
+            )
+            self.validator.types_mapping["float"] = TypeDefinition(
+                "float", (float, Decimal), ()
+            )
+            self.validator.types_mapping["number"] = TypeDefinition(
+                "number", (int, float, Decimal), (bool,)
+            )
+        else:
+            self.validator = None
 
     def exists(self, id, hash_key=None):
         key = hash_key or self.hash_key
@@ -85,8 +89,9 @@ class DynamodbTable:
             return {"Items": []}
 
     def add(self, data):
-        if not self.validator.validate(data):
-            raise SchemaError(self.validator.errors)
+        if self.validator:
+            if not self.validator.validate(data):
+                raise SchemaError(self.validator.errors)
 
         data = json.loads(json.dumps(data, default=json_encoder), parse_float=Decimal)
 
@@ -103,9 +108,10 @@ class DynamodbTable:
         return self.table.delete_item(Key=key)
 
     def batch_add(self, data):
-        for x in data:
-            if not self.validator.validate(x):
-                raise SchemaError(self.validator.errors)
+        if self.validator:
+            for x in data:
+                if not self.validator.validate(x):
+                    raise SchemaError(self.validator.errors)
 
         try:
             with self.table.batch_writer() as batch:
