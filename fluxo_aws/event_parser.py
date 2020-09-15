@@ -9,7 +9,7 @@ class ParsedEvent:
         self.body = body
         self.path = path
 
-    def get(self, q):
+    def get(self, q, default=None):
         if self.body.get(q):
             return self.body.get(q)
         elif self.query.get(q):
@@ -19,7 +19,7 @@ class ParsedEvent:
         elif self.path.get(q):
             return self.path.get(q)
         else:
-            return None
+            return default
 
 
 def _load_resource(event, name):
