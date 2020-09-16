@@ -1,5 +1,5 @@
 import boto3
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key, Attr
 from cerberus import Validator, TypeDefinition
 import json
 from .json_encoder import json_encoder
@@ -71,8 +71,24 @@ class DynamodbTable:
         :param startKey: default=None
         :return: dist object {"Items": [...items...], "ExclusiveStartKey":"...next page start key(if there is next page)..."}
         """
+        if isinstance(key, dict):
+            if key['operator'] == 'in':
+                FilterExpression = Attr(key["range"]).is_in(data["range"])
+                KeyConditionExpression = Key(key["hash"]).eq(data["hash"])
+                query_kwargs = {"KeyConditionExpression": KeyConditionExpression, "FilterExpression": FilterExpression}
+            elif key['operator'] == 'between':
+                query_kwargs = {"KeyConditionExpression": Key(key["hash"]).eq(
+                    data["hash"]) & Key(key["range"]).between(data["range"][0], data["range"][1])}
+            elif key['operator'] == 'le':
+                query_kwargs = {"KeyConditionExpression": Key(key["hash"]).eq(
+                    data["hash"]) & Key(key["range"]).lte(data["range"])}
+            elif key['operator'] == 'eq':
+                query_kwargs = {"KeyConditionExpression": Key(key["hash"]).eq(
+                    data["hash"]) & Key(key["range"]).eq(data["range"])}
 
-        query_kwargs = {"KeyConditionExpression": Key(key).eq(data)}
+        else:
+            query_kwargs = {"KeyConditionExpression": Key(key).eq(data)}
+
         if startKey:
             print("Start Key is passed")
             query_kwargs["ExclusiveStartKey"] = startKey
