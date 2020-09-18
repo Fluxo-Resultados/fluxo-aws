@@ -175,3 +175,28 @@ class DynamodbTable:
             done = start_key is None
 
         return final_result
+
+    def get_all_filtered_items(self, data: any, key: str, operator: str = "in") -> list:
+        """Get all filtered items from DynamoDB Table.
+
+        :param data: query data
+        :param key: query field
+        :return: list [...items...]
+        """
+
+        final_result = list()
+        scan_kwargs = {}
+        done = False
+        start_key = None
+        if operator == "in":
+            scan_kwargs["FilterExpression"] = Attr(key).is_in(data)
+
+        while not done:
+            if start_key:
+                scan_kwargs["ExclusiveStartKey"] = start_key
+            response = self.table.scan(**scan_kwargs)
+            final_result.extend(response.get("Items", []))
+            start_key = response.get("LastEvaluatedKey", None)
+            done = start_key is None
+
+        return final_result
