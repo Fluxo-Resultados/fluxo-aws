@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 import jwt
 from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError, DecodeError
 from base64 import b64decode
+from .json_encoder import json_encoder
+import json
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
@@ -29,6 +31,8 @@ def create_access_token(
     else:
         expire = datetime.utcnow() + timedelta(minutes=360)
     to_encode.update({"exp": expire})
+
+    to_encode = json.loads(json.dumps(to_encode, default=json_encoder))
 
     encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=ALGORITHM)
     return encoded_jwt
