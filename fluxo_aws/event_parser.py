@@ -35,6 +35,8 @@ def _load_resource(event, name):
 
 
 def _parse_event(event):
+    if type(event) == ParsedEvent:
+        return event
     headers = _load_resource(event, "headers")
     query = _load_resource(event, "queryStringParameters")
     body = _load_resource(event, "body")
