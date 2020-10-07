@@ -8,7 +8,7 @@ with open("requirements.txt") as requirements:
 
 setuptools.setup(
     name="fluxo-aws",
-    version="0.0.36",
+    version="0.0.37",
     author="Brenno Flavio",
     author_email="brenno.flavio@fluxoresultados.com.br",
     description="Provides a bunch of functions and utils to help you build applications on top of Amazon Web Services Resources",
@@ -21,6 +21,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.6",
     install_requires=install_requires,
 )
