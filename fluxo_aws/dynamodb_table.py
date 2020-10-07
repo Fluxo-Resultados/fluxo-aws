@@ -118,6 +118,9 @@ class DynamodbTable:
 
         if item:
             item.update(data)
+            if self.validator:
+                if not self.validator.validate(data):
+                    raise SchemaError(self.validator.errors)
             return self.table.put_item(Item=item)
 
     def delete(self, key: dict):
