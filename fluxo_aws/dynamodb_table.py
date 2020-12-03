@@ -64,6 +64,10 @@ class DynamodbTable:
         return self.table.get_item(Key=data).get("Item", {})
 
     def query_items(self, data, key, startKey=None, index_name=None):
+        if startKey:
+            print(
+                "Start key is deprecated, this method always query all items regardless of the key"
+            )
         """Query Items from DynamoDB Table
 
         :param data: query data
@@ -72,37 +76,49 @@ class DynamodbTable:
         :return: dist object {"Items": [...items...], "ExclusiveStartKey":"...next page start key(if there is next page)..."}
         """
         if isinstance(key, dict):
-            if key['operator'] == 'in':
+            if key["operator"] == "in":
                 FilterExpression = Attr(key["range"]).is_in(data["range"])
                 KeyConditionExpression = Key(key["hash"]).eq(data["hash"])
-                query_kwargs = {"KeyConditionExpression": KeyConditionExpression, "FilterExpression": FilterExpression}
-            elif key['operator'] == 'between':
-                query_kwargs = {"KeyConditionExpression": Key(key["hash"]).eq(
-                    data["hash"]) & Key(key["range"]).between(data["range"][0], data["range"][1])}
-            elif key['operator'] == 'le':
-                query_kwargs = {"KeyConditionExpression": Key(key["hash"]).eq(
-                    data["hash"]) & Key(key["range"]).lte(data["range"])}
-            elif key['operator'] == 'eq':
-                query_kwargs = {"KeyConditionExpression": Key(key["hash"]).eq(
-                    data["hash"]) & Key(key["range"]).eq(data["range"])}
+                query_kwargs = {
+                    "KeyConditionExpression": KeyConditionExpression,
+                    "FilterExpression": FilterExpression,
+                }
+            elif key["operator"] == "between":
+                query_kwargs = {
+                    "KeyConditionExpression": Key(key["hash"]).eq(data["hash"])
+                    & Key(key["range"]).between(data["range"][0], data["range"][1])
+                }
+            elif key["operator"] == "le":
+                query_kwargs = {
+                    "KeyConditionExpression": Key(key["hash"]).eq(data["hash"])
+                    & Key(key["range"]).lte(data["range"])
+                }
+            elif key["operator"] == "eq":
+                query_kwargs = {
+                    "KeyConditionExpression": Key(key["hash"]).eq(data["hash"])
+                    & Key(key["range"]).eq(data["range"])
+                }
 
         else:
             query_kwargs = {"KeyConditionExpression": Key(key).eq(data)}
 
-        if startKey:
-            print("Start Key is passed")
-            query_kwargs["ExclusiveStartKey"] = startKey
-        else:
-            print("Start Key is not passed")
         if index_name:
             query_kwargs["IndexName"] = index_name
 
-        response = self.table.query(**query_kwargs)
-        startKey = response.get("LastEvaluatedKey", None)
-        if response and "Items" in response:
-            return {"Items": response["Items"], "ExclusiveStartKey": startKey}
-        else:
-            return {"Items": []}
+        items = []
+        key = None
+        while True:
+            if key:
+                query_kwargs["ExclusiveStartKey"] = key
+
+            response = self.table.query(**query_kwargs)
+            items.extend(response.get("Items", []))
+            key = response.get("LastEvaluatedKey")
+
+            if not key:
+                break
+
+        return {"Items": items, "ExclusiveStartKey": None}
 
     def add(self, data):
         if self.validator:

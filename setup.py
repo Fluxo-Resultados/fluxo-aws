@@ -1,4 +1,5 @@
 import setuptools
+from fluxo_aws import __version__
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -8,7 +9,7 @@ with open("requirements.txt") as requirements:
 
 setuptools.setup(
     name="fluxo-aws",
-    version="0.0.38",
+    version=__version__,
     author="Brenno Flavio",
     author_email="brenno.flavio@fluxoresultados.com.br",
     description="Provides a bunch of functions and utils to help you build applications on top of Amazon Web Services Resources",

@@ -20,11 +20,10 @@ class S3Bucket:
             object_name = file_name
 
         try:
-            response = self.s3_client.upload_file(
+            _ = self.s3_client.upload_file(
                 file_name, self.bucket_name, object_name, ExtraArgs=ExtraArgs
             )
-        except ClientError as e:
-            # logging.error(e)
+        except ClientError:
             return False
         return True
 
@@ -45,8 +44,7 @@ class S3Bucket:
             response = self.s3_client.download_file(
                 self.bucket_name, object_name, file_name
             )
-        except ClientError as e:
-            # logging.error(e)
+        except ClientError:
             return None
         return response
 
@@ -64,11 +62,10 @@ class S3Bucket:
 
         # Download the file
         try:
-            response = self.s3_client.download_fileobj(
+            _ = self.s3_client.download_fileobj(
                 self.bucket_name, object_name, file_name
             )
-        except ClientError as e:
-            # logging.error(e)
+        except ClientError:
             return False
         return True
 
@@ -88,8 +85,7 @@ class S3Bucket:
                 Params={"Bucket": self.bucket_name, "Key": object_name},
                 ExpiresIn=expiration,
             )
-        except ClientError as e:
-            # logging.error(e)
+        except ClientError:
             return None
 
         # The response contains the presigned URL
@@ -97,5 +93,6 @@ class S3Bucket:
 
     def generate_presigned_post(self, file_name: str, ExpiresIn=360):
         response = self.s3_client.generate_presigned_post(
-            self.bucket_name, file_name, ExpiresIn)
+            self.bucket_name, file_name, ExpiresIn
+        )
         return response
