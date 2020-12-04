@@ -12,4 +12,4 @@ from .auth import (  # noqa: F401
 )  # noqa: F401
 from .s3_bucket import S3Bucket  # noqa: F401
 
-__version__ = "0.0.40"
+__version__ = "0.0.41"

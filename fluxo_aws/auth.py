@@ -22,9 +22,7 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(
-    data, expires_delta, secret_key, has_expiration=True
-):
+def create_access_token(data, expires_delta, secret_key, has_expiration=True):
     to_encode = data.copy()
     to_encode = json.loads(json.dumps(to_encode, default=json_encoder))
 
