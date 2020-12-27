@@ -4,7 +4,7 @@ from cerberus import Validator, TypeDefinition
 import json
 from .json_encoder import json_encoder
 from decimal import Decimal
-from botocore.exceptions import ClientError
+import warnings
 
 
 class SchemaError(Exception):
@@ -13,8 +13,6 @@ class SchemaError(Exception):
 
 class DynamodbTable:
     def __init__(self, table_name, schema=None, hash_key=None, partition_key=None):
-        print("boto3.__version__")
-        print(boto3.__version__)
         self.table_name = table_name
         self.schema = schema
         self.resource = boto3.resource("dynamodb")
@@ -65,8 +63,9 @@ class DynamodbTable:
 
     def query_items(self, data, key, startKey=None, index_name=None):
         if startKey:
-            print(
-                "Start key is deprecated, this method always query all items regardless of the key"
+            warnings.warn(
+                "Start key is deprecated, this method always query all items regardless of the key",
+                DeprecationWarning,
             )
         """Query Items from DynamoDB Table
 
@@ -145,34 +144,10 @@ class DynamodbTable:
                 if not self.validator.validate(x):
                     raise SchemaError(self.validator.errors)
 
-        try:
-            with self.table.batch_writer() as batch:
-                for r in data:
-                    r = json.loads(
-                        json.dumps(r, default=json_encoder), parse_float=Decimal
-                    )
-                    batch.put_item(Item=r)
-
-        except ClientError as e:
-            print("Unexpected error: %s" % e)
-            print("DynamoDB Client Error: %s" % e)
-            return False
-        except self.client.exceptions.ItemCollectionSizeLimitExceededException as e:
-            print("Unexpected error: %s" % e)
-            print(
-                "DynamoDB Client Error[ItemCollectionSizeLimitExceededException]: %s"
-                % e
-            )
-            return False
-        except self.client.exceptions.LimitExceededException as e:
-            print("Error[DynamoDB LimitExceededException]: %s" % e)
-            return False
-        except self.client.exceptions.RequestLimitExceeded as e:
-            print("Error[DynamoDB RequestLimitExceeded]: %s" % e)
-            return False
-        except self.client.exceptions.ProvisionedThroughputExceededException as e:
-            print("Error[DynamoDB ProvisionedThroughputExceededException]: %s" % e)
-            return False
+        with self.table.batch_writer() as batch:
+            for r in data:
+                r = json.loads(json.dumps(r, default=json_encoder), parse_float=Decimal)
+                batch.put_item(Item=r)
 
         return True
 
