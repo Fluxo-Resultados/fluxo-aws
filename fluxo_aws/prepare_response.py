@@ -1,6 +1,6 @@
 from functools import wraps
 from .json_encoder import json_encoder
-import fluxo_aws.fast_json as json
+import json
 
 mapping = {
     bytes: lambda x: x.decode(),

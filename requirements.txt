@@ -6,4 +6,3 @@ bcrypt==3.1.7
 boto3==1.14.44
 aioboto3==8.2.0
 aiofile==3.3.3
-orjson==3.4.6

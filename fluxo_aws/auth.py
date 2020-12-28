@@ -4,7 +4,7 @@ import jwt
 from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError, DecodeError
 from base64 import b64decode
 from .json_encoder import json_encoder
-import fluxo_aws.fast_json as json
+import json
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
