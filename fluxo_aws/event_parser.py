@@ -1,4 +1,4 @@
-import fast_json as json
+import fluxo_aws.fast_json as json
 from functools import wraps
 
 

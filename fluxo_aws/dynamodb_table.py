@@ -1,7 +1,7 @@
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
 from cerberus import Validator, TypeDefinition
-import fast_json as json
+import fluxo_aws.fast_json as json
 from .json_encoder import json_encoder
 from decimal import Decimal
 import warnings
