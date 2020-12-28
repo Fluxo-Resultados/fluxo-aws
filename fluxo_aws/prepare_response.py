@@ -1,6 +1,6 @@
 from functools import wraps
 from .json_encoder import json_encoder
-import json
+import fast_json as json
 
 mapping = {
     bytes: lambda x: x.decode(),

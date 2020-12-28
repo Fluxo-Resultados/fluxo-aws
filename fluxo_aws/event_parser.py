@@ -1,4 +1,4 @@
-import json
+import fast_json as json
 from functools import wraps
 
 
