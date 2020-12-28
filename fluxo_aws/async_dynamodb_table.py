@@ -65,9 +65,8 @@ class AsyncDynamodbTable:
     async def exists(self, id, hash_key=None):
         key = hash_key or self.hash_key
         try:
-            data = await self.table.query(KeyConditionExpression=Key(key).eq(id)).get(
-                "Items", []
-            )
+            data = await self.table.query(KeyConditionExpression=Key(key).eq(id))
+            data = data.get("Items", [])
             if data:
                 return True
             else:
@@ -82,12 +81,16 @@ class AsyncDynamodbTable:
             query_kwargs["IndexName"] = index_name
 
         try:
-            return await self.table.query(**query_kwargs).get("Items", [])
+            data = await self.table.query(**query_kwargs)
+            data = data.get("Items", [])
+            return data
         except self.client.exceptions.ResourceNotFoundException:
             return []
 
     async def get_item(self, data):
-        return await self.table.get_item(Key=data).get("Item", {})
+        data = await self.table.get_item(Key=data)
+        data = data.get("Item", {})
+        return data
 
     async def query_items(self, data, key, startKey=None, index_name=None):
         if startKey:
