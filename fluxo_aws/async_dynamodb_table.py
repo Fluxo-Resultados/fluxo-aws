@@ -6,33 +6,56 @@ from decimal import Decimal
 import warnings
 import aioboto3
 from .dynamodb_table import SchemaError
+from aiofile import async_open
+import yaml
 
 
 class AsyncDynamodbTable:
-    def __init__(self, table_name, schema=None, hash_key=None, partition_key=None):
+    def __init__(
+        self,
+        table_name,
+        schema=None,
+        hash_key=None,
+        partition_key=None,
+        schema_path=None,
+    ):
         self.table_name = table_name
         self.schema = schema
         self.hash_key = hash_key
         self.partition_key = partition_key
+        self.schema_path = schema_path
 
         if self.schema:
-            self.validator = Validator(schema)
-            self.validator.types_mapping["integer"] = TypeDefinition(
-                "integer", (int, Decimal), (bool,)
+            warnings.warn(
+                "schema parameter will be deprecated in favor of schema_path for async file read",
+                DeprecationWarning,
             )
-            self.validator.types_mapping["float"] = TypeDefinition(
-                "float", (float, Decimal), ()
-            )
-            self.validator.types_mapping["number"] = TypeDefinition(
-                "number", (int, float, Decimal), (bool,)
-            )
+            self._build_validator()
         else:
             self.validator = None
+
+    def _build_validator(self):
+        self.validator = Validator(self.schema)
+        self.validator.types_mapping["integer"] = TypeDefinition(
+            "integer", (int, Decimal), (bool,)
+        )
+        self.validator.types_mapping["float"] = TypeDefinition(
+            "float", (float, Decimal), ()
+        )
+        self.validator.types_mapping["number"] = TypeDefinition(
+            "number", (int, float, Decimal), (bool,)
+        )
 
     async def __aenter__(self):
         self.client = await aioboto3.client("dynamodb").__aenter__()
         self.resource = await aioboto3.resource("dynamodb").__aenter__()
         self.table = await self.resource.Table(self.table_name)
+        if self.schema_path:
+            async with async_open(self.schema_path, "r") as opened_file:
+                file_content = await opened_file.read(length=-1)
+                self.schema = yaml.safe_load(file_content)
+                self._build_validator()
+
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
