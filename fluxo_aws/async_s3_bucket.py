@@ -7,7 +7,7 @@ class AsyncS3Bucket:
         self.bucket_name = bucket_name
 
     async def __aenter__(self):
-        self.s3_client = aioboto3.client("s3").__aenter__()
+        self.s3_client = await aioboto3.client("s3").__aenter__()
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
