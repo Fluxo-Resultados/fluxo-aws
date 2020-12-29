@@ -164,7 +164,11 @@ class AsyncDynamodbTable:
 
         if item:
             item.update(data)
-            return await self.table.put_item(Item=item)
+            return await self.table.put_item(
+                Item=json.loads(
+                    json.dumps(item, default=json_encoder), parse_float=Decimal
+                )
+            )
 
     async def delete(self, key: dict):
         return await self.table.delete_item(Key=key)

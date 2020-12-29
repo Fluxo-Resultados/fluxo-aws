@@ -133,7 +133,11 @@ class DynamodbTable:
 
         if item:
             item.update(data)
-            return self.table.put_item(Item=item)
+            return await self.table.put_item(
+                Item=json.loads(
+                    json.dumps(item, default=json_encoder), parse_float=Decimal
+                )
+            )
 
     def delete(self, key: dict):
         return self.table.delete_item(Key=key)
