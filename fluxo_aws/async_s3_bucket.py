@@ -96,6 +96,10 @@ class AsyncS3Bucket:
         self, file_name: str, ExpiresIn=360, Fields=None, Conditions=None
     ):
         response = await self.s3_client.generate_presigned_post(
-            self.bucket_name, file_name, ExpiresIn, Fields=Fields, Conditions=Conditions
+            Bucket=self.bucket_name,
+            Key=file_name,
+            ExpiresIn=ExpiresIn,
+            Fields=Fields,
+            Conditions=Conditions,
         )
         return response
