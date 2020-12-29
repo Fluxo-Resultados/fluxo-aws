@@ -133,7 +133,7 @@ class DynamodbTable:
 
         if item:
             item.update(data)
-            return await self.table.put_item(
+            return self.table.put_item(
                 Item=json.loads(
                     json.dumps(item, default=json_encoder), parse_float=Decimal
                 )
