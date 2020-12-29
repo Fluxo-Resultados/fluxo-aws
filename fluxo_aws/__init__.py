@@ -14,4 +14,4 @@ from .s3_bucket import S3Bucket  # noqa: F401
 from .async_dynamodb_table import AsyncDynamodbTable  # noqa: F401
 from .async_s3_bucket import AsyncS3Bucket  # noqa: F401
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
