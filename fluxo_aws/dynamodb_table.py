@@ -195,3 +195,18 @@ class DynamodbTable:
             done = start_key is None
 
         return final_result
+
+    def query(self, query_kwargs):
+        items = []
+        key = None
+        while True:
+            if key:
+                query_kwargs["ExclusiveStartKey"] = key
+
+            response = self.table.query(**query_kwargs)
+            items.extend(response.get("Items", []))
+            key = response.get("LastEvaluatedKey")
+
+            if not key:
+                break
+        return items
