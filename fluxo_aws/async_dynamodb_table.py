@@ -51,10 +51,16 @@ class AsyncDynamodbTable:
         self.resource = await aioboto3.resource("dynamodb").__aenter__()
         self.table = await self.resource.Table(self.table_name)
         if self.schema_path:
-            async with async_open(self.schema_path, "r") as opened_file:
-                file_content = await opened_file.read(length=-1)
-                self.schema = yaml.safe_load(file_content)
-                self._build_validator()
+            try:
+                async with async_open(self.schema_path, "r") as opened_file:
+                    file_content = await opened_file.read(length=-1)
+                    self.schema = yaml.safe_load(file_content)
+                    self._build_validator()
+            except Exception:
+                with open(self.schema_path, "r") as opened_file:
+                    file_content = opened_file.read()
+                    self.schema = yaml.safe_load(file_content)
+                    self._build_validator()
 
         return self
 
