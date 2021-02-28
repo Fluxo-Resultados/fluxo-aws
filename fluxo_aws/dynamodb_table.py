@@ -54,7 +54,19 @@ class DynamodbTable:
             query_kwargs["IndexName"] = index_name
 
         try:
-            return self.table.query(**query_kwargs).get("Items", [])
+            items = []
+            key = None
+            while True:
+                if key:
+                    query_kwargs["ExclusiveStartKey"] = key
+
+                response = self.table.query(**query_kwargs)
+                items.extend(response.get("Items", []))
+                key = response.get("LastEvaluatedKey")
+
+                if not key:
+                    break
+            return items
         except self.client.exceptions.ResourceNotFoundException:
             return []
 
