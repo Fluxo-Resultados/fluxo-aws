@@ -134,6 +134,11 @@ class AsyncDynamodbTable:
                     "KeyConditionExpression": Key(key["hash"]).eq(data["hash"])
                     & Key(key["range"]).eq(data["range"])
                 }
+            elif key["operator"] == "ge":
+                query_kwargs = {
+                    "KeyConditionExpression": Key(key["hash"]).eq(data["hash"])
+                    & Key(key["range"]).gte(data["range"])
+                }
 
         else:
             query_kwargs = {"KeyConditionExpression": Key(key).eq(data)}
