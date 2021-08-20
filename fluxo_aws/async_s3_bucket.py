@@ -103,3 +103,9 @@ class AsyncS3Bucket:
             Conditions=Conditions,
         )
         return response
+
+    async def delete_object(self, key, bucket_name=None):
+        response = await self.s3_client.delete_object(
+            Bucket=bucket_name or self.bucket_name, Key=key
+        )
+        return response
