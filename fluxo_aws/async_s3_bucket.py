@@ -109,3 +109,24 @@ class AsyncS3Bucket:
             Bucket=bucket_name or self.bucket_name, Key=key
         )
         return response
+
+    async def list_objects(self, prefix=None, bucket_name=None):
+        final_result = []
+        query_kwargs = {
+            "Bucket": bucket_name or self.bucket_name,
+            "MaxKeys": 1000,
+            "Prefix": prefix,
+        }
+        query_kwargs = {k: v for k, v in query_kwargs.items() if v}
+        done = False
+        continuation_token = None
+
+        while not done:
+            if continuation_token:
+                query_kwargs["ContinuationToken"] = continuation_token
+            response = await self.s3_client.list_objects_v2(**query_kwargs)
+            final_result.extend(response.get("Contents", []))
+            continuation_token = response.get("ContinuationToken", None)
+            done = continuation_token is None
+
+        return final_result
