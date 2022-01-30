@@ -130,3 +130,15 @@ class AsyncS3Bucket:
             done = continuation_token is None
 
         return final_result
+
+    async def move_object(self, source, dest, bucket_name=None):
+        await self.s3_client.copy_object(
+            Bucket=bucket_name or self.bucket_name,
+            CopySource=f"/{bucket_name or self.bucket_name}/{source}",
+            Key=dest,
+        )
+
+        await self.s3_client.delete_object(
+            Bucket=bucket_name or self.bucket_name,
+            Key=source,
+        )
